@@ -1,2 +1,2 @@
 # Y1CyclonesSummerProject
-For the Imperial College London Y1 Summer Project
+Andrea, Jack, Julien and Parasme's Summer Project!
