@@ -8,7 +8,7 @@ import tropycal.tracks as tracks
 # this tropycal module can be used for basin-wide tracks plotting, and could do nicely for a global warming investigation
 # initialise data
 
-wpac = tracks.TrackDataset(basin='west_pacific',source='ibtracs',ibtracs_mode='jtwc_neumann', include_btk=False)
+wpac = tracks.TrackDataset(basin='west_pacific',source='ibtracs',ibtracs_mode='jtwc_neumann', catarina=True)
 wpac.to_dataframe()
 
 # testing track resolution 

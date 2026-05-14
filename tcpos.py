@@ -1,0 +1,12 @@
+# simple algo to get storm coordinates, reducing data file size
+
+import numpy as np
+import pandas as pd
+import tropycal.tracks as tracks
+import datetime as dt
+
+ibtracs = tracks.TrackDataset(basin='north_atlantic',source='hurdat')
+
+storm = ibtracs.get_storm(('isabel',2003))
+print(storm.to_dataframe())
+
