@@ -35,6 +35,10 @@ phi_1 = ((n_1 ** l_1) * (p_1 ** k_1)) * (1/(n_1 - k_1 + k_1 * p_1 ** (n_1/l_1)))
 
 V = (V_1X) * phi_1 
 
+# we can define an equation for the coriolis parameter, see https://fabienmaussion.info/climate_system/week_04/01_Lesson_Wind-Derivatives-Integrals.html
+# this will let us get more accurate values this parameter, since i have a program that gets us the HOUR ON HOUR COORDINATE POSITIONS OF THE CENTER OF CIRCULATION! (we remove 1 more source of error!)
+
+# f = 2. * 7.292115e-5 * np.sin(np.deg2rad(21.5))
 
 U = -V * np.sin(theta)
 W =  V * np.cos(theta)
