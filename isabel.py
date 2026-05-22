@@ -19,7 +19,9 @@ idx = isabel.dict['time'].index(t)
 # Find the coordinates of the centre of the cyclone
 lat = isabel.dict['lat'][idx]
 lon = isabel.dict['lon'][idx]
+typ = isabel.dict['type'][idx]
 
 print("Isabel centre at 18 Sep 2003 18:00 UTC:")
 print("Latitude:", lat)
 print("Longitude:", lon) 
+print(typ)

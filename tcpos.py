@@ -5,8 +5,8 @@ import pandas as pd
 import tropycal.tracks as tracks
 import datetime as dt
 
-ibtracs = tracks.TrackDataset(basin='north_atlantic',source='hurdat')
+hurdat = tracks.TrackDataset(basin='north_atlantic',source='hurdat')
 
-storm = ibtracs.get_storm(('tammy',2023))
+storm = hurdat.get_storm(('isabel',2003))
 print(storm.to_dataframe())
 
