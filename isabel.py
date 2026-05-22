@@ -1,3 +1,6 @@
+
+# done by JM
+# for future reference please copy your code into separate blocks! 
 import datetime as dt
 from tropycal import tracks
 
@@ -19,4 +22,4 @@ lon = isabel.dict['lon'][idx]
 
 print("Isabel centre at 18 Sep 2003 18:00 UTC:")
 print("Latitude:", lat)
-print("Longitude:", lon)
+print("Longitude:", lon) 
