@@ -60,7 +60,6 @@ C_0 = 2 * np.pi * R_1X * V_1X
 
 # Defining viscosity with sutherland's law 
 
-
 u_0 = 0.5
 T_0 = 300
 S   = 110.4
