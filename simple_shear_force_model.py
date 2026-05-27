@@ -1,4 +1,5 @@
 
+# fitting of tammy starting at line 135
 import numpy as np 
 import matplotlib.pyplot as plt 
 import matplotlib.animation as animation
@@ -120,11 +121,80 @@ while time < 3:  # Run for 3 seconds
     time += dt
     print(V_n_scalar)
 
+# plt.figure()
+# plt.plot(time_steps, V_change)
+# plt.xlabel("Time (s)")
+# plt.ylabel("V (m/s)")
+# plt.title("V_mag vs Time")
+# plt.grid()
+# plt.show()
 
+# shear force model ends here
+
+#---------
+# trying to fit tammy peak intensity to model
+#---------
+import os
+import glob
+import xarray as xr
+import pandas as pd
+
+files = sorted(glob.glob("/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/tammy*.nc"))
+
+# sort by actual timestamp
+file_times = []
+for f in files:
+    ds = xr.open_dataset(f)
+    t = pd.Timestamp(ds["valid_time"].values[0])
+    file_times.append((t, f))
+
+file_times.sort(key=lambda x: x[0])
+
+# extract V_tan at r=5 from each file
+times_out = []
+V_tammy   = []
+
+target_radius_km = 200  # somewhere noted that radius of max is 5km
+
+for t, f in file_times:
+    ds       = xr.open_dataset(f)
+    u_data   = ds["u10"].values[0]
+    v_data   = ds["v10"].values[0]
+    lat      = ds["latitude"].values
+    lon      = ds["longitude"].values
+
+    # find eye coor by min wind speed
+    speed   = np.sqrt(u_data**2 + v_data**2)
+    min_idx = np.unravel_index(np.argmin(speed), speed.shape)
+    lat_c   = lat[min_idx[0]]
+    lon_c   = lon[min_idx[1]]
+
+    dlat     = np.radians(lat - lat_c) * 6371.0
+    dlon     = np.radians((lon - lon_c) * np.cos(np.radians(lat_c))) * 6371.0
+    LON_G, LAT_G = np.meshgrid(dlon, dlat)
+    R_grid   = np.sqrt(LAT_G**2 + LON_G**2)
+
+    theta_grid = np.arctan2(LAT_G, LON_G)
+    V_tan    = -u_data * np.sin(theta_grid) + v_data * np.cos(theta_grid)
+
+    mask     = (R_grid >= target_radius_km - 25) & (R_grid < target_radius_km + 25)
+    if mask.sum() > 0:
+        times_out.append(t)
+        V_tammy.append(np.mean(V_tan[mask]))
+
+# convert time to hours since first timestamp
+t0         = times_out[0]
+hours      = [(t - t0).total_seconds() / 3600 for t in times_out]
+
+# plot on top of your existing model
 plt.figure()
-plt.plot(time_steps, V_change)
-plt.xlabel("Time (s)")
+plt.plot(time_steps, V_change, label="Viscous decay model")
+plt.plot(hours, V_tammy, 'o--', color='orange', label=f"Tammy V at r={target_radius_km}km")
+plt.xlabel("Time (hours from start)")
 plt.ylabel("V (m/s)")
-plt.title("V_mag vs Time")
+plt.title("V_mag vs Time — Model vs Tammy")
+plt.legend()
 plt.grid()
 plt.show()
+
+
