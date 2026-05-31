@@ -1,5 +1,7 @@
 # produce nc file that contains wind data at two pressure levels at each timestep
-# 28 May: the animation is missing all the contours and quivers, need refining again
+# V1 28 May: the animation is missing all the contours and quivers, need refining again
+# V2 31 May: fixed contours and quivers, but the VWS values are all NaN... need checking again
+# also would like to keep only the contoured animation (the right one)
 import cdsapi
 
 c = cdsapi.Client()
@@ -19,7 +21,7 @@ c.retrieve(
             '18', '19', '20', '21', '22', '23',
             '24', '25', '26', '27', '28'
         ],
-        'time': ['00:00', '06:00', '12:00', '18:00'],
+        'time': ['00:00', '12:00'],
 
         # bounding box around Tammy's full track
         'area': [50, -90, 5, -40],  # N, W, S, E
@@ -86,7 +88,8 @@ def compute_vws(ds, time_idx, lat0, lon0_plot):
     v200 = ds.variables['v'][time_idx, 1, :, :][np.ix_(lat_mask, lon_mask)]
 
     lon2d, lat2d = np.meshgrid(lon_sub, lat_sub)
-    lon2d_plot   = lon2d - 360
+    # lon2d_plot   = lon2d - 360 # shouldn't blindly subtract 360 from everything
+    lon2d_plot = np.where(lon2d > 180, lon2d - 360, lon2d)  # correct: convert 0-360 to -180 to 180     
 
     du      = u200 - u850
     dv      = v200 - v850
@@ -192,3 +195,10 @@ for i in range(len(best_track)):
 
 imageio.mimsave('tammy_vws_animation.gif', frames, fps=2)
 print('Animation saved.')
+
+# debugging prints
+# print(lon2d_plot.min(), lon2d_plot.max())  # should be ~-90 to -40
+# print(lat2d.min(), lat2d.max())            # should be ~5 to 50
+# print(vws_mag.min(), vws_mag.max())        # should have real values
+# print(np.isnan(vws_mag).mean())  # if close to 1.0, this is your problem
+# print(lon2d_plot.shape, vws_mag.shape, du.shape)  # all must match
