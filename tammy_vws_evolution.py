@@ -34,7 +34,7 @@ c.retrieve(
 # checking
 import netCDF4 as nc
 
-ds = nc.Dataset('tammy_vws_evolution.nc')
+ds = nc.Dataset('tammy_vws_evolution.nc')  # this evolution .nc file has 20 timestamps, with 2 pressure levels, lat/lon coor, and u,v wind components
 
 # variable names are valid_time, pressure_level, latitude, longitude(, u, v)
 
