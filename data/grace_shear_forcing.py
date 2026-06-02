@@ -1,6 +1,8 @@
-# Tammy's response timescale to shear forcing
+# Grace's response timescale to shear forcing
 # correlation between shear at T and Vmax at T+dt, where dt is the response timescale
 # repeat everything with dt = 0,6,12,18,24,48, r nearest to -1 is best correlated
+
+# obtain grace vws evolution from era5
 
 # first, plot graph of Vmax (y) vs shear (x) for each dt, and then plot correlation coefficient vs dt to find the best dt
 
@@ -10,11 +12,10 @@ import matplotlib.pyplot as plt
 # variable names of evolution .nc fileare valid_time, pressure_level, latitude, longitude(, u, v)
 
 import netCDF4 as nc
-# timestamps for both files: 00:00 and 12:00 from 2023-10-18 to 2023-10-28
-# selected region is [50, -90, 5, -40] for [N, W, S, E]
 
 # define vws_mag
-ds = nc.Dataset('tammy_vws_evolution.nc') 
+ds = nc.Dataset('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/grace_vws_evolution.nc') 
+
 
 u850 = ds.variables['u'][:, 0, :, :]  # shape (time, lat, lon), these are all 3D arrays, like a stack of 2D arrays of u/v over all grids of a certain time
 v850 = ds.variables['v'][:, 0, :, :]
@@ -26,29 +27,24 @@ v_vws = v200 - v850
 vws_mag = np.sqrt(u_vws**2 + v_vws**2)  # shape is still a 3D array bc each grid has diff value: (22, 181, 201)
 
 # work out annulus-mean VWS (i.e. shear) (scalar at each timestamp)
-
-best_track = [
-    ('2023-10-18 00:00', 12.9, -51.0, 0),  # (datetime, lat, lon, Vmax)
-    ('2023-10-18 12:00', 13.2, -54.0, 0),
-    ('2023-10-19 00:00', 13.0, -52.5, 35),
-    ('2023-10-19 12:00', 13.4, -55.3, 50),
-    ('2023-10-20 00:00', 13.6, -57.2, 50),
-    ('2023-10-20 12:00', 13.9, -58.4, 60),
-    ('2023-10-21 00:00', 14.5, -59.6, 70),
-    ('2023-10-21 12:00', 15.6, -60.6, 75),
-    ('2023-10-22 00:00', 17.5, -61.7, 80),
-    ('2023-10-22 12:00', 18.7, -62.8, 75),
-    ('2023-10-23 00:00', 20.2, -63.9, 75),
-    ('2023-10-23 12:00', 21.6, -64.0, 70),
-    ('2023-10-24 00:00', 22.6, -63.5, 65),
-    ('2023-10-24 12:00', 23.6, -62.6, 65),
-    ('2023-10-25 00:00', 24.5, -61.2, 75),
-    ('2023-10-25 12:00', 26.1, -59.4, 95),
-    ('2023-10-26 00:00', 29.1, -57.8, 80),
-    ('2023-10-26 12:00', 30.5, -58.8, 70),
-    ('2023-10-27 00:00', 31.5, -60.1, 60),
-    ('2023-10-27 12:00', 32.0, -61.0, 55),
+best_track = [  # manually extracted from Grace (1991) best tracks, every 6h
+    ('1991-10-26 00:00', 27.1, -65.2, 30),
+    ('1991-10-26 06:00', 27.2, -65.5, 35),
+    ('1991-10-26 12:00', 27.3, -66.0, 35),
+    ('1991-10-26 18:00', 27.5, -66.5, 40),
+    ('1991-10-27 00:00', 28.1, -67.1, 45),
+    ('1991-10-27 06:00', 28.9, -66.9, 50),
+    ('1991-10-27 12:00', 29.8, -66.4, 55),
+    ('1991-10-27 18:00', 30.8, -67.2, 60),
+    ('1991-10-28 00:00', 31.6, -68.1, 65),
+    ('1991-10-28 06:00', 32.2, -68.5, 65),
+    ('1991-10-28 12:00', 32.3, -68.5, 65),
+    ('1991-10-28 18:00', 32.4, -67.8, 65),
+    ('1991-10-29 00:00', 31.8, -66.8, 70),
+    ('1991-10-29 06:00', 31.6, -65.3, 75),
+    ('1991-10-29 12:00', 31.5, -63.2, 85),  # last tropical entry
 ]
+# 15 data
 
 R = 6371.0
 lat = ds.variables['latitude'][:]
@@ -57,7 +53,9 @@ lon2d, lat2d = np.meshgrid(lon, lat)
 
 VWS_list = []
 
-for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track):
+best_track_tropical = best_track
+
+for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track_tropical):
     # distance mask (distance from storm centre)
     dlat_km = (lat2d - lat0) * (np.pi/180) * R
     dlon_km = (lon2d - lon0) * (np.pi/180) * R * np.cos(np.radians(lat0))
@@ -68,17 +66,17 @@ for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track):
     vws_mean = np.mean(vws_t[annulus])  # single value
     VWS_list.append(vws_mean)
 
-VWS_array = np.array(VWS_list)  # shape = 20 (index 0-19) - one value per timestamp
+VWS_array = np.array(VWS_list)  # shape = 10 (index 0-9) - one value per timestamp
 
 
 # define Vmax as the max V of annulus wind speed at 10m above sea level
-ds = nc.Dataset('tammy_surface_V_evolution.nc')  # contains u10 and v10 (10m above sea level), for finding Vmax 
+ds = nc.Dataset('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/grace_surface_V_evolution.nc')  # 28 data sets, contains u10 and v10, 2023-09-06 to 2023-09-19, 00:00 and 12:00
 
 u10 = ds.variables['u10'][:, :, :]  # shape (time, lat, lon)
 v10 = ds.variables['v10'][:, :, :]
 
 Vmax_list = []
-for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track):  # era5 has 22 data, best_track has 20 data, so we take only the first 20 data for both (i.e. excluding 10-28)
+for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track_tropical): 
 
     # for Vmax, use inner disk instead of annulus
     inner_disk = dist_km <= 200
@@ -87,7 +85,7 @@ for i, (dt_str, lat0, lon0, Vmax_tracks) in enumerate(best_track):  # era5 has 2
     Vmax = np.max(wspd10[inner_disk]) # maximum value within the annulus
     Vmax_list.append(Vmax)
 
-Vmax_array = np.array(Vmax_list)  # shape = 20 (index 0-19) (1D array of Vmax at each timestamp)
+Vmax_array = np.array(Vmax_list)  # shape = 15 (index 0-14) (1D array of Vmax at each timestamp)
 # print(Vmax_array[1])
 # print(VWS_array)
 
@@ -97,9 +95,10 @@ Vmax_array = np.array(Vmax_list)  # shape = 20 (index 0-19) (1D array of Vmax at
 # before importing detrend, all r values are positive, which may be explained by the fact that both VWS and Vmax are increasing over time. Thus, import detrend to analyze fluctuations around trend
 from scipy.signal import detrend
 
+# for the following, choose either detrend or differencing
 vws_detrended = detrend(VWS_array)
 vmax_detrended = detrend(Vmax_array)
-Vmax_tracks_array = np.array([vmax for _, _, _, vmax in best_track]) * 0.514  # convert knots to m/s
+Vmax_tracks_array = np.array([vmax for _, _, _, vmax in best_track_tropical]) * 0.514  # convert knots to m/s
 
 vws_diff  = np.diff(VWS_array)         # change in VWS between timesteps
 vmax_diff = np.diff(Vmax_tracks_array) # change in Vmax between timesteps
@@ -114,7 +113,7 @@ axes = axes.flatten()  # makes it easier to index as axes[0], axes[1], ...
 for idx, dt in enumerate([0, 12, 24, 36, 48]):  # 5 values → axes[0] to axes[4]
     steps = dt // 12  # convert hours to timesteps (each step = 12h)
 
-    vws = vws_detrended[:20 - steps] if steps > 0 else vws_detrended     # shear at time T (only taking first 20 timestamps for vws to match vmax)
+    vws = vws_detrended[:15 - steps] if steps > 0 else vws_detrended     
     # vmax = vmax_detrended[steps:]      # vmax from era5 data
     vmax = Vmax_tracks_array[steps:]     # vmax from best track data [either choose this or era5]
 
@@ -130,16 +129,16 @@ for idx, dt in enumerate([0, 12, 24, 36, 48]):  # 5 values → axes[0] to axes[4
 
 axes[5].set_visible(False)  # hide the 6th (empty) subplot
 
-plt.suptitle("Vmax vs Annulus-mean VWS for Tammy (Detrended Data)", fontsize=14)
+plt.suptitle("Vmax vs Annulus-mean VWS for Ida (Detrended Data)", fontsize=14)
 plt.tight_layout(pad=3.0)
-plt.savefig('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/VWS_shear_forcing_plots/Tammy_Vmax_vs_VWS_detrended.png')
+plt.savefig('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/VWS_shear_forcing_plots/Grace_Vmax_vs_VWS_detrended.png')
 plt.show()
 
 # # using differencing
 # for idx, dt in enumerate([0, 12, 24, 36, 48]):  # 5 values → axes[0] to axes[4]
 #     steps = dt // 12  # convert hours to timesteps (each step = 12h)
 
-#     vws = vws_diff[:19 - steps] if steps > 0 else vws_diff  # vws_diff has 19 values only
+#     vws = vws_diff[:14 - steps] if steps > 0 else vws_diff  
 #     vmax = vmax_diff[steps:]
     
 #     r = np.corrcoef(vws, vmax)[0, 1]
@@ -153,7 +152,7 @@ plt.show()
 
 # axes[5].set_visible(False)  # hide the 6th (empty) subplot
 
-# plt.suptitle("Vmax vs Annulus-mean VWS for Tammy (Differenced Data)", fontsize=14)
+# plt.suptitle("Vmax vs Annulus-mean VWS for Grace (Differenced Data)", fontsize=14)
 # plt.tight_layout(pad=3.0)
-# plt.savefig('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/VWS_shear_forcing_plots/Tammy_Vmax_vs_VWS_differenced.png')
+# plt.savefig('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/VWS_shear_forcing_plots/Grace_Vmax_vs_VWS_differenced.png')
 # plt.show()
