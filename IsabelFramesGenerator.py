@@ -92,15 +92,12 @@ storm_lons = [
 
 n_frames = len(timestamps)
 
-
 #Domain 
 
 north = 50
 south = 10
 west  = -90
 east  = -20
-
-
 
 #ERA5 client
 
