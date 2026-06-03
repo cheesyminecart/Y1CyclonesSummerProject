@@ -129,7 +129,7 @@ for idx, dt in enumerate([0, 12, 24, 36, 48]):  # 5 values → axes[0] to axes[4
 
 axes[5].set_visible(False)  # hide the 6th (empty) subplot
 
-plt.suptitle("Vmax vs Annulus-mean VWS for Ida (Detrended Data)", fontsize=14)
+plt.suptitle("Vmax vs Annulus-mean VWS for Grace (Detrended Data)", fontsize=14)
 plt.tight_layout(pad=3.0)
 plt.savefig('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/VWS_shear_forcing_plots/Grace_Vmax_vs_VWS_detrended.png')
 plt.show()

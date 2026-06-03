@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 # variable names of evolution .nc fileare valid_time, pressure_level, latitude, longitude(, u, v)
 
 import netCDF4 as nc
-# timestamps for both files: 00:00 and 12:00 from 2023-10-18 to 2023-10-28
-# selected region is [50, -90, 5, -40] for [N, W, S, E]
 
 # define vws_mag
 ds = nc.Dataset('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/isabel_vws_evolution.nc') 
