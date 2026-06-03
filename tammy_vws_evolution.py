@@ -103,7 +103,7 @@ def compute_vws(ds, time_idx, lat0, lon0_plot):
     dist_km  = np.sqrt(dlat_km**2 + dlon_km**2)
     annulus  = (dist_km >= 200) & (dist_km <= 800)
 
-    vws_mean = np.mean(vws_mag[annulus])
+    vws_mean = np.nanmean(vws_mag[annulus].copy())
     du_mean  = np.mean(du[annulus])
     dv_mean  = np.mean(dv[annulus])
     vws_dir  = (270 - np.degrees(np.arctan2(dv_mean, du_mean))) % 360
