@@ -97,9 +97,11 @@ def compute_vws(ds, time_idx, lat0, lon0_plot):
 
     # annulus mean
     R        = 6371.0
-    lon0_era5 = lon0_plot + 360
-    dlat_km  = (lat2d - lat0) * (np.pi/180) * R
-    dlon_km  = (lon2d - lon0_era5) * (np.pi/180) * R * np.cos(np.radians(lat0))
+    # lon0_era5 = lon0_plot + 360
+    dlat_km = (lat2d - lat0)  * (np.pi/180) * R
+    dlon_km = (lon2d - lon0_plot) * (np.pi/180) * R * np.cos(np.radians(lat0))
+    # dlat_km  = (lat2d - lat0) * (np.pi/180) * R
+    # dlon_km  = (lon2d - lon0_era5) * (np.pi/180) * R * np.cos(np.radians(lat0))
     dist_km  = np.sqrt(dlat_km**2 + dlon_km**2)
     annulus  = (dist_km >= 200) & (dist_km <= 800)
 

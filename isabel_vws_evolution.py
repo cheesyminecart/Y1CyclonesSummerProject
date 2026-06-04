@@ -1,6 +1,6 @@
 import netCDF4 as nc
 
-ds = nc.Dataset('isabel_vws_evolution.nc')  # this evolution .nc file has 20 timestamps, with 2 pressure levels, lat/lon coor, and u,v wind components
+ds = nc.Dataset('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/ida_vws_evolution.nc') 
 
 # variable names are valid_time, pressure_level, latitude, longitude(, u, v)
 
@@ -42,7 +42,7 @@ best_track = [  # manually extracted from isabel best tracks
     ('2003-09-19 12:00', 40.90, -80.30, 35),  # from here onwards is extratropical (i.e. transitioned into another weather system)
     ('2003-09-20 00:00', 48.00, -81.00, 25),
 ] 
-
+best_track = best_track[:28]  
 # VWS model, which is the same as the one ins VWS_model.py, but this time we run it over all timesteps
 import numpy as np
 
@@ -51,9 +51,8 @@ def compute_vws(ds, time_idx, lat0, lon0_plot):
     lon = ds.variables['longitude'][:]
 
     # subset region
-    lat_mask = (lat >= 5)   & (lat <= 55)
-    # lon_mask = (lon >= 270) & (lon <= 360)
-    lon_mask = (lon >= -90) & (lon <= -40)
+    lat_mask = (lat >= 5)  & (lat <= 60)
+    lon_mask = (lon >= -90) & (lon <= -20)  # extend east to -20 to catch early track
     lat_sub  = lat[lat_mask]
     lon_sub  = lon[lon_mask]
 
@@ -72,9 +71,12 @@ def compute_vws(ds, time_idx, lat0, lon0_plot):
 
     # annulus mean
     R        = 6371.0
-    lon0_era5 = lon0_plot + 360
-    dlat_km  = (lat2d - lat0) * (np.pi/180) * R
-    dlon_km  = (lon2d - lon0_era5) * (np.pi/180) * R * np.cos(np.radians(lat0))
+    # lon0_era5 = lon0_plot + 360
+
+    dlat_km = (lat2d - lat0)  * (np.pi/180) * R
+    dlon_km = (lon2d - lon0_plot) * (np.pi/180) * R * np.cos(np.radians(lat0))
+    # dlat_km  = (lat2d - lat0) * (np.pi/180) * R
+    # dlon_km  = (lon2d - lon0_era5) * (np.pi/180) * R * np.cos(np.radians(lat0))
     dist_km  = np.sqrt(dlat_km**2 + dlon_km**2)
     annulus  = (dist_km >= 200) & (dist_km <= 800)
 
@@ -126,8 +128,8 @@ def plot_frame(lon2d_plot, lat2d, vws_mag, du, dv,
     cbar = plt.colorbar(cf, ax=ax, pad=0.02)
     cbar.set_label('VWS (m/s)', fontsize=11)
 
-    ax.set_xlim(-90, -40)
-    ax.set_ylim(5, 50)
+    ax.set_xlim(-90, -20)
+    ax.set_ylim(5, 55)
     ax.set_xlabel('Longitude', fontsize=11)
     ax.set_ylabel('Latitude', fontsize=11)
     ax.set_title(title, fontsize=12)
@@ -144,9 +146,9 @@ import os
 
 os.makedirs('frames', exist_ok=True)
 
-ds = nc.Dataset('tammy_vws_evolution.nc')
+ds = nc.Dataset('/Users/bobo/Documents/GitHub/Y1CyclonesSummerProject/data/isabel_vws_evolution.nc')
 
-for i, (dt_str, lat0, lon0_plot) in enumerate(best_track):
+for i, (dt_str, lat0, lon0_plot, vmax) in enumerate(best_track):
     print(f'Processing {dt_str}...')
 
     lon2d_plot, lat2d, vws_mag, du, dv, \
@@ -155,7 +157,7 @@ for i, (dt_str, lat0, lon0_plot) in enumerate(best_track):
     fig = plot_frame(lon2d_plot, lat2d, vws_mag, du, dv,
                      vws_mean, du_mean, dv_mean, vws_dir,
                      lat0, lon0_plot,
-                     title=f'Hurricane Tammy - VWS (200-850 hPa)\n{dt_str} UTC')
+                     title=f'Hurricane Isabel - VWS (200-850 hPa)\n{dt_str} UTC')
 
     fig.savefig(f'frames/frame_{i:02d}.png', dpi=120, bbox_inches='tight')
     plt.close(fig)
@@ -168,7 +170,7 @@ frames = []
 for i in range(len(best_track)):
     frames.append(imageio.imread(f'frames/frame_{i:02d}.png'))
 
-imageio.mimsave('tammy_vws_animation.gif', frames, fps=2)
+imageio.mimsave('isabel_vws_animation.gif', frames, fps=2)
 print('Animation saved.')
 
 # debugging prints
