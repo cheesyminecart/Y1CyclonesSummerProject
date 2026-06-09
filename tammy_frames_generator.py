@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# output folders (ZOOMED OUT VERSION)
+# output folders 
 era5_folder = r"C:\Users\Jack\OneDrive - Imperial College London\ERA5_Tammy_zoomout"
 png_folder  = r"C:\Users\Jack\OneDrive - Imperial College London\Tammy_frames_zoomout"
 
@@ -44,7 +44,7 @@ storm_lons = [
     -48.1,-48.5,-49.0,-49.9,-50.6
 ]
 
-# ZOOMED‑OUT domain (wider like Isabel)
+# ZOOMED‑OUT domain 
 north, south, west, east = 50, 5, -85, -35
 
 # ERA5 API client
@@ -93,7 +93,7 @@ for i in range(len(timestamps)):
     # open ERA5 file
     ds = xr.open_dataset(nc_file)
 
-    # convert longitudes to -180 → 180
+    # convert longitudes to -180 to 180
     ds = ds.assign_coords(
         longitude=((ds.longitude + 180) % 360) - 180
     ).sortby("longitude")
